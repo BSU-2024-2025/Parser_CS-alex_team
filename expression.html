@@ -187,9 +187,14 @@
                 deleteButton.textContent = "Delete";
                 deleteButton.onclick = () => deleteExpression(index);
 
+                const editButton = document.createElement("button");
+                editButton.textContent = "Edit";
+                editButton.onclick = () => editExpression(index);
+
                 div.appendChild(span);
                 div.appendChild(runButton);
                 div.appendChild(deleteButton);
+                div.appendChild(editButton);
 
                 container.appendChild(div);
             });
@@ -198,6 +203,13 @@
         function deleteExpression(index) {
             savedExpressions.splice(index, 1);
             updateSavedExpressions();
+        }
+
+        function editExpression(index) {
+            const expression = savedExpressions[index];
+            const inputField = document.getElementById("expressionInput");
+            inputField.value = expression;
+            deleteExpression(index);
         }
     </script>
 </body>
