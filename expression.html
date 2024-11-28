@@ -9,92 +9,116 @@
             font-family: 'Arial', sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #FF9966;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            background-color: #fff;
             height: 100vh;
-        }
-
-        .container {
-            display: flex;
-            gap: 2vw;
-            padding: 2vh;
-            max-width: 100vw;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .box {
-            flex: 1;
-            width: 40vw;
-            background: #ffffff;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
-            padding: 2vw;
             display: flex;
             flex-direction: column;
         }
 
-        h2 {
-            margin-bottom: 1vh;
-            color: #555;
+        .container {
+            display: flex;
+            height: 100%;
+            width: 100%;
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            flex: 2; /* Основная область занимает больше места */
+            
+        }
+
+        .bottom-content {
+            padding: 1rem;
+            border-top: 1px solid #ddd;
+            background-color: #f9f9f9;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            position: relative;
+            height: 20%; /* Начальная высота */
+        }
+
+        .resize-handle-horizontal {
+            position: absolute;
+            top: -5px;
+            left: 0;
+            right: 0;
+            height: 10px;
+            cursor: row-resize;
+            background: transparent;
+        }
+
+        .side-content {
+            padding: 1rem;
+            border-left: 1px solid #ddd;
+            background-color: #f9f9f9;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            position: relative;
+            width: 20%; /* Начальная ширина */
+        }
+
+        .resize-handle-vertical {
+            position: absolute;
+            top: 0;
+            left: -5px;
+            bottom: 0;
+            width: 10px;
+            cursor: col-resize;
+            background: transparent;
+        }
+
+        .box {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 1rem;
         }
 
         textarea {
-            width: 100%;
-            height: 30vh;
+            flex: 1;
+            width: 97%;
             border: 1px solid #ddd;
             border-radius: 5px;
-            padding: 1vh;
+            padding: 1rem;
             font-size: 1rem;
             outline: none;
             resize: none;
-            margin-bottom: 2vh;
-        }
-        #resultOutput {
-            width: 100%;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 1vh;
-            font-size: 1rem;
-            outline: none;
-            resize: none;
-            margin-bottom: 2vh;
+            margin: 0;
         }
 
-        textarea:focus, #resultOutput:focus {
+        textarea:focus {
             border-color: #6666CC;
             box-shadow: 0 0 5px rgba(0, 58, 120, 0.5);
         }
 
         #resultOutput {
-            height: 5vh;
-            background-color: #f9f9f9;
-            color: #333;
+            padding: 1rem;
             font-size: 1rem;
-            line-height: 1.5;
             font-family: 'Courier New', Courier, monospace;
+            background-color: #f9f9f9;
             overflow-y: auto;
+            height: 10vh;
+        }
+
+        .instrumentcont {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
         }
 
         button {
             background: #6666CC;
             color: #fff;
             border: none;
-            padding: 1vh 2vw;
+            padding: 0.5rem 1rem;
             border-radius: 5px;
             cursor: pointer;
             font-size: 1rem;
-            margin-right: 1vw;
             transition: background-color 0.3s, transform 0.2s;
-        }
-
-        buttonDelete {
-            border: none;
-            cursor: pointer;
-            margin-right: 1vw;
-            transition: transform 0.2s;
         }
 
         button:hover {
@@ -106,34 +130,47 @@
             transform: scale(1);
         }
 
+    
+
         .saved-expression {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1vh;
-            margin-bottom: 1vh;
-            background: #f9f9f9;
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+            background: #fff;
             border: 1px solid #ddd;
             border-radius: 5px;
-            flex-wrap: wrap;
         }
 
         .saved-expression span {
             word-break: break-word;
-            flex: 1;
-            margin-right: 1vw;
+            white-space: pre-wrap;
+            max-height: 3.5rem; /* Ограничение высоты */
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: inline-block;
         }
 
+
         .saved-expression button {
-            margin-left: 1vw;
-            padding: 1vh 2vw;
-            font-size: 1rem;
+            background: #fff;
+            color: #fff;
+            border: none;
+            margin-left: 0.5rem;
+            border-radius: 5px;
+            padding: 0.5rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .saved-expression button:hover {
+            background: #b6b6b6;
         }
 
         #savedExpressions {
-            max-height: 40vh;
+            flex: 1;
             overflow-y: auto;
-            width: 100%;
         }
 
         #savedExpressions::-webkit-scrollbar {
@@ -152,33 +189,99 @@
 </head>
 <body>
     <div class="container">
-        <div class="box">
-            <h2>Input</h2>
-            <textarea id="expressionInput" placeholder="Enter your expression here..."></textarea>
-            <div>
-                <button onclick="runExpression()">Run</button>
-                <button onclick="saveExpression()">Save</button>
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Input Section -->
+            <div class="box">
+                <div class="instrumentcont">
+                    <h2>Input</h2>
+                    <button onclick="runExpression()">Run</button>
+                    <button onclick="saveExpression()">Save</button>
+                    <button onclick="toggleVisibility('resultBox')">Result Area</button>
+                    <button onclick="toggleVisibility('savedBox')">Save Area</button>
+                </div>
+                <textarea id="expressionInput" placeholder="Enter your expression here..."></textarea>
+                 <!-- Result Section -->
+                <div class="bottom-content" id="resultBox">
+                    <div class="resize-handle-horizontal" id="resizeHorizontal"></div>
+                    <h2>Result</h2>
+                    <div id="resultOutput" readonly></div>
+                </div>
             </div>
-            <h2>Result</h2>
-            <div id="resultOutput" readonly></div>
+
+           
         </div>
-        <div class="box">
+
+        <!-- Saved Expressions -->
+        <div class="side-content" id="savedBox">
+            <div class="resize-handle-vertical" id="resizeVertical"></div>
             <h2>Saved Expressions</h2>
             <div id="savedExpressions"></div>
         </div>
     </div>
 
     <script>
+         const bottomContent = document.getElementById('resultBox');
+        const resizeHorizontal = document.getElementById('resizeHorizontal');
+        const sideContent = document.getElementById('savedBox');
+        const resizeVertical = document.getElementById('resizeVertical');
+
+        let isResizingHorizontal = false;
+        let isResizingVertical = false;
+
+        //Перемещение up/down
+        resizeHorizontal.addEventListener('mousedown', (e) => {
+            isResizingHorizontal = true;
+            document.body.style.cursor = 'row-resize';
+            document.addEventListener('mousemove', resizeBottomContent);
+            document.addEventListener('mouseup', stopResizingHorizontal);
+        });
+
+        function resizeBottomContent(e) {
+            if (!isResizingHorizontal) return;
+            const containerRect = bottomContent.parentElement.getBoundingClientRect();
+            const newHeight = containerRect.bottom - e.clientY;
+            bottomContent.style.height = `${newHeight}px`;
+        }
+
+        function stopResizingHorizontal() {
+            isResizingHorizontal = false;
+            document.body.style.cursor = 'default';
+            document.removeEventListener('mousemove', resizeBottomContent);
+            document.removeEventListener('mouseup', stopResizingHorizontal);
+        }
+
+        // Перемещение left/right
+        resizeVertical.addEventListener('mousedown', (e) => {
+            isResizingVertical = true;
+            document.body.style.cursor = 'col-resize';
+            document.addEventListener('mousemove', resizeSideContent);
+            document.addEventListener('mouseup', stopResizingVertical);
+        });
+
+        function resizeSideContent(e) {
+            if (!isResizingVertical) return;
+            const containerRect = sideContent.parentElement.getBoundingClientRect();
+            const newWidth = containerRect.right - e.clientX;
+            sideContent.style.width = `${newWidth}px`;
+        }
+
+        function stopResizingVertical() {
+            isResizingVertical = false;
+            document.body.style.cursor = 'default';
+            document.removeEventListener('mousemove', resizeSideContent);
+            document.removeEventListener('mouseup', stopResizingVertical);
+        }
+
+
         const savedExpressions = [];
-       
 
         function runExpression(expression = null) {
             const resultOutput = document.getElementById("resultOutput");
             try {
                 const input = expression || document.getElementById("expressionInput").value;
-                const result = eval(input); 
+                const result = eval(input);
                 resultOutput.textContent = `${result}`;
-               
             } catch (error) {
                 resultOutput.textContent = `Error: ${error.message}`;
             }
@@ -196,7 +299,7 @@
         }
 
         function updateSavedExpressions() {
-            const container = document.getElementById("savedExpressions");
+        const container = document.getElementById("savedExpressions");
             container.innerHTML = ""; 
             savedExpressions.forEach((expression, index) => {
                 const div = document.createElement("div");
@@ -205,30 +308,22 @@
                 const span = document.createElement("span");
                 span.textContent = expression;
 
-                // const runButton = document.createElement("button");
-                // runButton.textContent = "Run";
-                // runButton.onclick = () => runExpression(expression);
+                // Добавляем атрибут title для показа полного текста
+                span.title = expression;
 
-                const editButton = document.createElement("buttonDelete");
+                const editButton = document.createElement("button");
                 editButton.textContent = "✏️";
                 editButton.onclick = () => editExpression(index);
 
-                const deleteButton = document.createElement("buttonDelete");
+                const deleteButton = document.createElement("button");
                 deleteButton.textContent = "🗑️";
                 deleteButton.onclick = () => deleteExpression(index);
 
                 div.appendChild(span);
-                // div.appendChild(runButton);
                 div.appendChild(editButton);
                 div.appendChild(deleteButton);
-                
                 container.appendChild(div);
             });
-        }
-
-        function deleteExpression(index) {
-            savedExpressions.splice(index, 1);
-            updateSavedExpressions();
         }
 
         function editExpression(index) {
@@ -236,6 +331,20 @@
             const inputField = document.getElementById("expressionInput");
             inputField.value = expression;
             deleteExpression(index);
+        }
+
+        function deleteExpression(index) {
+            savedExpressions.splice(index, 1);
+            updateSavedExpressions();
+        }
+
+        function toggleVisibility(sectionId) {
+            const section = document.getElementById(sectionId);
+            if (section.style.display === "none") {
+                section.style.display = "flex";
+            } else {
+                section.style.display = "none";
+            }
         }
     </script>
 </body>
