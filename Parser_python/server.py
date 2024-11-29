@@ -1,10 +1,23 @@
 from flask import Flask, request, jsonify
 from parser import evaluate_expression 
+import os
 app = Flask(__name__)
 
 data_store = {}
 
 
+@app.route('/getall', methods=['GET'])
+def get_all_files():
+    dir_list = os.listdir('files')
+    names = [_.split('.')[0] for _ in dir_list]
+    result = list()
+    for name in names:
+        cur = dict()
+        cur["name"] = name
+        with open('files/' + name + '.txt', 'r') as file:
+            cur['text'] = file.read()
+        result.append(cur)
+    return jsonify({'result': result}), 200
 @app.route('/send', methods=['POST'])
 def send_data():
     try:
@@ -16,7 +29,9 @@ def send_data():
             return jsonify({'error': 'Name and text fields are required'}), 400
 
         # Сохраняем данные в хранилище
-        data_store[name] = text
+        #data_store[name] = text
+        with open("files/" + name + ".txt", 'w') as file:
+            file.write(text)
         return jsonify({'message': 'Data saved successfully'}), 200
 
     except Exception as e:
@@ -27,12 +42,11 @@ def send_data():
 def get_data(name):
     try:
         # Получаем текст по имени из хранилища
-        text = data_store.get(name)
+        result = ""
+        with open("files/" + name + ".txt", 'r') as file:
+            result = file.read()
 
-        if text is None:
-            return jsonify({'error': 'No data found for the given name'}), 404
-
-        return jsonify({'name': name, 'text': text}), 200
+        return result
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -51,4 +65,3 @@ def process_request():
 
 if __name__ == '__main__':
     app.run(debug=True)
-
