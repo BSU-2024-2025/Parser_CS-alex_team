@@ -284,12 +284,13 @@
         //Запуск файла
         function runExpression(expression = null) {
             const resultOutput = document.getElementById("resultOutput");
+            const timestamp = new Date().toLocaleString(); 
             try {
                 const input = expression || document.getElementById("expressionInput").value;
                 const result = eval(input);
-                resultOutput.textContent = `${result}`;
+                resultOutput.innerHTML += `<div>${timestamp}: ${result}</div>`;
             } catch (error) {
-                resultOutput.textContent = `Error: ${error.message}`;
+                resultOutput.innerHTML += `<div>${timestamp} Error: ${error.message}</div>`;
             }
         }
 
