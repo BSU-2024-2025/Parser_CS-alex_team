@@ -1,0 +1,46 @@
+<program> ::= <statement_list>
+
+<statement_list> ::= <statement> | <statement> <statement_list>
+
+<statement> ::= <assignment> ";" 
+              | <function_definition> 
+              | <print_statement> ";" 
+              | <if_statement> 
+              | <while_statement>
+
+<assignment> ::= <identifier> "=" <expression>
+
+<function_definition> ::= "function" <identifier> "(" <parameter_list> ")" "{" <statement_list> "}"
+
+<parameter_list> ::= ε | <identifier> | <identifier> "," <parameter_list>
+
+<print_statement> ::= "print" "(" <expression> ")"
+
+<if_statement> ::= "if" "(" <expression> ")" "{" <statement_list> "}" <else_if_clauses> <else_clause>
+<else_if_clauses> ::= ε | <else_if_clause> <else_if_clauses>
+<else_if_clause> ::= "else if" "(" <expression> ")" "{" <statement_list> "}"
+<else_clause> ::= "else" "{" <statement_list> "}" | ε
+
+<while_statement> ::= "while" "(" <expression> ")" "{" <statement_list> "}"
+
+<expression> ::= <term> | <term> <operator> <expression>
+<term> ::= <factor> | <factor> <operator> <term>
+<factor> ::= <number> | <identifier> | <string> | <boolean> | "(" <expression> ")" | <function_call>
+
+<function_call> ::= <identifier> "(" <argument_list> ")"
+<argument_list> ::= ε | <expression> | <expression> "," <argument_list>
+
+<operator> ::= "+" | "-" | "*" | "/" | ">=" | "<=" | "==" | "!=" | ">" | "<" | "&&" | "||" | "!"
+
+<number> ::= <digit> | <digit> <number>
+<digit> ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
+
+<string> ::= "\"" <character>* "\""
+<character> ::= <letter> | <digit> | <symbol>
+<letter> ::= "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z"
+           | "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H" | "I" | "J" | "K" | "L" | "M" | "N" | "O" | "P" | "Q" | "R" | "S" | "T" | "U" | "V" | "W" | "X" | "Y" | "Z"
+<symbol> ::= " " | "!" | "@" | "#" | "$" | "%" | "^" | "&" | "*" | "(" | ")" | "-" | "_" | "=" | "+" | "[" | "]" | "{" | "}" | "|" | "\\" | ";" | ":" | "'" | "\"" | "," | "<" | "." | ">" | "/" | "?"
+
+<boolean> ::= "true" | "false"
+
+<identifier> ::= <letter> | <letter> <identifier>

@@ -1,0 +1,5 @@
+# exclude python cahces
+__pycache__/
+
+# exclude temporary file
+parser_.py
