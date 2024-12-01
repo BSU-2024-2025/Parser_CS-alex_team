@@ -33,6 +33,8 @@ class Parser:
     def statement(self):
         token = self.current_token()
         if token[0] == 'IDENTIFIER':
+            if self.next_token_is('PUNCTUATION', '('):
+                return self.function_call_statement()
             return self.assignment_statement()
         elif token[0] == 'KEYWORD':
             if token[1] == 'function':
@@ -57,6 +59,14 @@ class Parser:
             'type': 'AssignmentStatement',
             'left': identifier,
             'right': expression
+        }
+
+    def function_call_statement(self):
+        call = self.function_call()
+        self.eat('PUNCTUATION', ';')
+        return {
+            'type': 'FunctionCallStatement',
+            'call': call
         }
 
     def function_definition(self):
@@ -184,16 +194,7 @@ class Parser:
 
     def term(self):
         node = self.factor()
-        while self.current_token() and self.current_token()[0] == 'OPERATOR' and self.current_token()[1] == '**':
-            operator = self.eat('OPERATOR')  # Обработка оператора возведения в степень
-            right = self.factor()  # Получаем правый операнд
-            node = {
-                'type': 'BinaryExpression',
-                'operator': operator,
-                'left': node,
-                'right': right
-            }
-        while self.current_token() and self.current_token()[0] == 'OPERATOR' and self.current_token()[1] in {'*', '/', '%'}:
+        while self.current_token() and self.current_token()[0] == 'OPERATOR' and self.current_token()[1] in {'*', '/', '%', '//', '**'}:
             operator = self.eat('OPERATOR')
             right = self.factor()
             node = {
@@ -257,5 +258,3 @@ class Parser:
             if next_token[0] == token_type and (value is None or next_token[1] == value):
                 return True
         return False
-    
-  
