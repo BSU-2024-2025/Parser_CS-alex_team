@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Graph of Sin(x), Its Integral and Derivative</title>
+    <style>
+      canvas {
+        display: block;
+        margin: auto;
+        border: 1px solid black;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Function Graph: sin(x)</h2>
+    <canvas id="sinCanvas" width="1500px" height="1000px"></canvas>
+    <!-- <h2>Integral of sin(x) via Darboux Sum</h2>
+    <canvas id="integralCanvas" width="600" height="300"></canvas>
+    <h2>Derivative of sin(x)</h2>
+    <canvas id="derivativeCanvas" width="600" height="300"></canvas> -->
+
+    <script>
+      const sinCanvas = document.getElementById('sinCanvas');
+      // const integralCanvas = document.getElementById('integralCanvas');
+      // const derivativeCanvas = document.getElementById('derivativeCanvas');
+      const sinCtx = sinCanvas.getContext('2d');
+      // const integralCtx = integralCanvas.getContext('2d');
+      // const derivativeCtx = derivativeCanvas.getContext('2d');
+
+      const width = sinCanvas.width;
+      const height = sinCanvas.height;
+      const step = 0.1; // Шаг между точками
+      const scaleX = 20; // Масштаб по X
+      const scaleY = 30; // Масштаб по Y
+      const startPos = -120;
+      const endPos = 120;
+
+      // Перевод координат в систему Canvas
+      function transformX(x) {
+        return width / 2 + x * scaleX;
+      }
+
+      function transformY(y) {
+        return height / 2 - y * scaleY;
+      }
+
+      // Функция для рисования осей
+      function drawAxes(ctx) {
+        ctx.beginPath();
+        ctx.moveTo(0, height / 2);
+        ctx.lineTo(width, height / 2);
+        ctx.moveTo(width / 2, 0);
+        ctx.lineTo(width / 2, height);
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
+
+      //Генерируем значения sin(x) для заданного диапазона
+      function generateValues() {
+        const values = [];
+        for (let x = startPos; x <= endPos; x += step) {
+          values.push({ x, y: Math.sin(x) + getRandomArbitrary() });
+        }
+        return values;
+      }
+
+      function getRandomArbitrary(min = -0.2, max = 0.2) {
+        return Math.random() * (max - min) + min;
+      }
+
+      // function generateValues() {
+      //   const values = [];
+      //   let k = 100;
+      //   let setUpVal = 1;
+      //   for (let x = startPos; x <= endPos; x += step) {
+      //     values.push({ x, y: setUpVal + getRandomArbitrary() });
+      //     k -= 1;
+      //     if (k == 0) {
+      //       setUpVal = -setUpVal;
+      //       k = 100;
+      //     }
+      //   }
+      //   return values;
+      // }
+
+      // Рисуем график sin(x)
+      function drawSin(ctx, values) {
+        ctx.beginPath();
+        ctx.moveTo(transformX(values[0].x), transformY(values[0].y));
+        for (const point of values) {
+          ctx.lineTo(transformX(point.x), transformY(point.y));
+        }
+        ctx.strokeStyle = 'blue';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+
+      // Вычисляем интеграл sin(x) через суммы Дарбу
+      function calculateIntegral(values) {
+        const integralValues = [];
+        let sum = 0;
+        for (const point of values) {
+          sum += point.y * step;
+          integralValues.push({ x: point.x, y: sum });
+        }
+        return integralValues;
+      }
+
+      // Рисуем интеграл sin(x)
+      function drawIntegral(ctx, values) {
+        ctx.beginPath();
+        ctx.moveTo(transformX(values[0].x), transformY(values[0].y));
+        for (const point of values) {
+          ctx.lineTo(transformX(point.x), transformY(point.y));
+        }
+        ctx.strokeStyle = 'green';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+
+      // Вычисляем производную sin(x) как разность между соседними точками
+      function calculateDerivative(values) {
+        const derivativeValues = [];
+        for (let i = 1; i < values.length; i++) {
+          const x = values[i].x;
+          const dy = (values[i].y - values[i - 1].y) / step;
+          derivativeValues.push({ x, y: dy });
+        }
+        return derivativeValues;
+      }
+
+      // Рисуем производную sin(x)
+      function drawDerivative(ctx, values) {
+        ctx.beginPath();
+        ctx.moveTo(transformX(values[0].x), transformY(values[0].y));
+        for (const point of values) {
+          ctx.lineTo(transformX(point.x), transformY(point.y));
+        }
+        ctx.strokeStyle = 'red';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+
+      // Отображение графиков
+      const Values = generateValues();
+      const integralValues = calculateIntegral(Values);
+      const derivativeValues = calculateDerivative(Values);
+
+      drawAxes(sinCtx);
+      // drawAxes(integralCtx);
+      // drawAxes(derivativeCtx);
+
+      drawSin(sinCtx, Values);
+      drawIntegral(sinCtx, integralValues);
+      //drawDerivative(sinCtx, derivativeValues);
+    </script>
+  </body>
+</html>
