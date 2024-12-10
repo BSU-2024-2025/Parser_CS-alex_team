@@ -5,14 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Expression Manager</title>
     <style>
-        body {
+         :root {
+            --background-light: #fff;
+            --background-dark: #121212;
+            --text-light: #000;
+            --text-dark: #fff;
+            --border-light: #ddd;
+            --border-dark: #444;
+        }
+
+         body {
             font-family: 'Arial', sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #fff;
+            background-color: var(--background-light);
+            color: var(--text-light);
             height: 100vh;
             display: flex;
             flex-direction: column;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body.dark {
+            background-color: var(--background-dark);
+            color: var(--text-dark);
         }
 
         h2{
@@ -35,13 +51,18 @@
 
         .bottom-content {
             padding: 1rem;
-            border-top: 1px solid #ddd;
-            background-color: #f9f9f9;
+            border-top: 1px solid var(--border-light);
+            background-color: var(--background-light);
             display: flex;
             flex-direction: column;
             overflow-y: auto;
             position: relative;
-            height: 20%; /* Начальная высота */
+            height: 20%;
+        }
+
+        body.dark .bottom-content {
+            border-top: 1px solid var(--border-dark);
+            background-color: var(--background-dark);
         }
 
         .resize-handle-horizontal {
@@ -56,13 +77,18 @@
 
         .side-content {
             padding: 0.3rem;
-            border-left: 1px solid #ddd;
-            background-color: #f9f9f9;
+            border-left: 1px solid var(--border-light);
+            background-color: var(--background-light);
             display: flex;
             flex-direction: column;
             overflow-y: auto;
             position: relative;
-            width: 20%; /* Начальная ширина */
+            width: 20%;
+        }
+
+        body.dark .side-content {
+            border-left: 1px solid var(--border-dark);
+            background-color: var(--background-dark);
         }
 
         .resize-handle-vertical {
@@ -108,6 +134,17 @@
             height: 10vh;
         }
 
+        textarea, #resultOutput {
+            background-color: var(--background-light);
+            color: var(--text-light);
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+
+        body.dark textarea, body.dark #resultOutput {
+            background-color: var(--background-dark);
+            color: var(--text-dark);
+        }
+
         .instrumentcont {
             display: flex;
             align-items: center;
@@ -116,14 +153,20 @@
         }
 
         button {
-            background: #fff;
-            color: #000000;
-            border: none;
-            padding: 0.1rem 0.5rem;
+            background: var(--background-light);
+            color: var(--text-light);
+            border: 1px solid var(--border-light);
+            padding: 0.5rem;
             border-radius: 5px;
             cursor: pointer;
             font-size: 1rem;
-            transition: background-color 0.3s, transform 0.2s;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body.dark button {
+            background: var(--background-dark);
+            color: var(--text-dark);
+            border: 1px solid var(--border-dark);
         }
 
         button:hover {
@@ -143,11 +186,17 @@
             align-items: center;
             padding: 0.5rem;
             margin-bottom: 0.5rem;
-            background: #fff;
+            background: var(--background-light);
+            color: var(--text-light);
             border: 1px solid #ddd;
             border-radius: 5px;
         }
-        
+
+        body.dark .saved-expression {
+            background-color: var(--background-dark);
+            color: var(--text-dark);
+            border: 1px solid var(--border-dark);
+        }
 
         .saved-expression span {
             word-break: break-word;
@@ -198,13 +247,12 @@
         <div class="main-content">
             <!-- Input Section -->
             <div class="box">
-                <!-- Поле для названия файла -->
-                
                 <div class="instrumentcont">
                     <button onclick="runExpression()">🟢</button>
                     <button onclick="saveExpression()">💾</button>
                     <button onclick="toggleVisibility('resultBox')">Result</button>
                     <button onclick="toggleVisibility('savedBox')">Saved</button>
+                    <button onclick="toggleTheme()">🌓</button>
                 </div>
                 <input type="text" id="fileNameInput" placeholder="Enter file name..." maxlength="50">
                 <textarea id="expressionInput" placeholder="Enter your expression here..."></textarea>
@@ -224,7 +272,28 @@
     </div>
 
     <script>
-        //Перемещение полей Save и Куыгде
+        function toggleTheme() {
+            document.body.classList.toggle('dark');
+        }
+            //Получение отдельного файла
+            async function fetchFileByName(fileName) {
+                const requestOptions = {
+                    method: "GET",
+                    redirect: "follow",
+                };
+
+                fetch(`http://127.0.0.1:5000/get/${fileName}`, requestOptions)
+                    .then((response) => response.json())
+                    .then((result) => {
+                        console.log("File content:", result);
+                        document.getElementById("fileNameInput").value = result.name;
+                        document.getElementById("expressionInput").value = result.text;
+                    })
+                    .catch((error) => console.error("Error fetching file:", error));
+            }
+
+
+        //Перемещение полей Save и Result
         const bottomContent = document.getElementById('resultBox');
         const resizeHorizontal = document.getElementById('resizeHorizontal');
         const sideContent = document.getElementById('savedBox');
@@ -278,54 +347,128 @@
         }
 
         //
+        document.addEventListener("DOMContentLoaded", () => {
+            fetchAllFiles(); // Вызов функции для получения всех файлов с сервера
+        });
+
         const savedExpressions = [];
         let editIndex = null; // Указатель для редактируемого элемента
 
-        //Запуск файла
-        function runExpression(expression = null) {
-            const resultOutput = document.getElementById("resultOutput");
-            const timestamp = new Date().toLocaleString(); 
+        //Получение всех файлов
+        async function fetchAllFiles() {
+            const myHeaders = new Headers();
+            myHeaders.append("Content-Type", "application/json");
+
+            const requestOptions = {
+                method: "GET",
+                headers: myHeaders,
+                redirect: "follow",
+            };
+
             try {
-                const input = expression || document.getElementById("expressionInput").value;
-                const result = eval(input);
-                resultOutput.innerHTML += `<div>${timestamp}: ${result}</div>`;
+                const response = await fetch("http://127.0.0.1:5000/getall", requestOptions);
+                const result = await response.json();
+                savedExpressions.length = 0; // Очищаем текущий список
+                savedExpressions.push(...result["result"]); // Добавляем файлы с сервера
+                updateSavedExpressions();
+            } catch (error) {
+                console.error("Error fetching files:", error);
+            }
+        }
+
+        //Запуск файла
+        async function runExpression(expression = null) {
+            const resultOutput = document.getElementById("resultOutput");
+            const timestamp = new Date().toLocaleString();
+            const input = expression || document.getElementById("expressionInput").value.trim();
+
+            if (input === "") {
+                resultOutput.innerHTML += `<div>${timestamp} Error: Expression is empty.</div>`;
+                return;
+            }
+
+            const myHeaders = new Headers();
+            myHeaders.append("Content-Type", "application/json");
+
+            const raw = JSON.stringify({ expression: input });
+
+            const requestOptions = {
+                method: "POST",
+                headers: myHeaders,
+                body: raw,
+            };
+
+            try {
+                const response = await fetch("http://127.0.0.1:5000/evaluate", requestOptions);
+                const result = await response.json();
+                resultOutput.innerHTML += `<div>${timestamp}: ${result.result}</div>`;
             } catch (error) {
                 resultOutput.innerHTML += `<div>${timestamp} Error: ${error.message}</div>`;
+                console.error("Error evaluating expression:", error);
             }
         }
 
         //Сохранение файла
-        function saveExpression() {
+        async function saveExpression() {
             const fileNameInput = document.getElementById("fileNameInput").value.trim();
             const expressionInput = document.getElementById("expressionInput").value.trim();
-            const timestamp = new Date().toLocaleString(); 
-            // Валидация
-            if (fileNameInput === "") {
-                alert("File name cannot be empty.");
+            const timestamp = new Date().toLocaleString();
+
+            if (fileNameInput === "" || expressionInput === "") {
+                alert("File name and expression cannot be empty.");
                 return;
             }
 
-            if (expressionInput === "") {
-                alert("Expression cannot be empty.");
-                return;
+            const myHeaders = new Headers();
+            myHeaders.append("Content-Type", "application/json");
+
+            const raw = JSON.stringify({
+                name: fileNameInput,
+                text: expressionInput,
+                timestamp: timestamp,
+            });
+
+            const requestOptions = {
+                method: "POST",
+                headers: myHeaders,
+                body: raw,
+            };
+
+            try {
+                await fetch("http://127.0.0.1:5000/save", requestOptions);
+                fetchAllFiles(); // Обновить список файлов после сохранения
+                // Очистка полей ввода
+                document.getElementById("fileNameInput").value = "";
+                document.getElementById("expressionInput").value = "";
+            } catch (error) {
+                console.error("Error saving file:", error);
             }
-
-            // Сохранение или обновление элемента
-            if (editIndex !== null) {
-                savedExpressions[editIndex] = { name: fileNameInput, expression: expressionInput, timestamp };
-                editIndex = null; // Сброс индекса редактирования
-            } else {
-                savedExpressions.push({ name: fileNameInput, expression: expressionInput, timestamp });
-            }
-
-            updateSavedExpressions();
-
-            // Очистка полей ввода
-            document.getElementById("fileNameInput").value = "";
-            document.getElementById("expressionInput").value = "";
         }
 
-        //Вывод в поле Save Files элемента
+        //Удаление файла
+        async function deleteExpression(index) {
+            const fileName = savedExpressions[index].name;
+
+            const myHeaders = new Headers();
+            myHeaders.append("Content-Type", "application/json");
+
+            const raw = JSON.stringify({ name: fileName });
+
+            const requestOptions = {
+                method: "DELETE",
+                headers: myHeaders,
+                body: raw,
+            };
+
+            try {
+                await fetch("http://127.0.0.1:5000/delete", requestOptions);
+                fetchAllFiles(); // Обновить список файлов после удаления
+            } catch (error) {
+                console.error("Error deleting file:", error);
+            }
+        }
+
+        //Вывод сохраненных файлов
         function updateSavedExpressions() {
             const container = document.getElementById("savedExpressions");
             container.innerHTML = ""; 
@@ -378,10 +521,10 @@
         }
 
         //Кнопка удаления файла
-        function deleteExpression(index) {
-            savedExpressions.splice(index, 1);
-            updateSavedExpressions();
-        }
+        // function deleteExpression(index) {
+        //     savedExpressions.splice(index, 1);
+        //     updateSavedExpressions();
+        // }
 
         function toggleVisibility(sectionId) {
             const section = document.getElementById(sectionId);
@@ -391,6 +534,9 @@
                 section.style.display = "none";
             }
         }
+
+
+        
     </script>
 </body>
 </html>
