@@ -76,6 +76,11 @@
             background: transparent;
         }
 
+        body.dark #fileNameInput {
+            background-color: var(--background-dark);
+            color:var(--text-dark);
+        }
+
         .side-content {
             padding: 0.3rem;
             border-left: 1px solid var(--border-light);
@@ -279,8 +284,7 @@
     </div>
 
     <script>
-
-            function toggleTheme() {
+        function toggleTheme() {
                 document.body.classList.toggle('dark');
             }
             //Получение отдельного файла
@@ -409,6 +413,7 @@
             try {
                 const response = await fetch("http://127.0.0.1:5000/process", requestOptions);
                 const result = await response.json();
+                console.log(result)
                 resultOutput.innerHTML += `<div>${timestamp}: ${result.result}</div>`;
             } catch (error) {
                 resultOutput.innerHTML += `<div>${timestamp} Error: ${error.message}</div>`;
@@ -504,7 +509,7 @@
 
                 const editButton = document.createElement("button");
                 editButton.textContent = "✏️";
-                editButton.onclick = () => editExpression(index);
+                editButton.onclick = () => fetchFileByName(item.name);
 
                 const deleteButton = document.createElement("button");
                 deleteButton.textContent = "🗑️";
@@ -519,20 +524,6 @@
                 container.appendChild(div);
             });
         }
-
-        //Кнопка редактирования
-        function editExpression(index) {
-            const item = savedExpressions[index];
-            document.getElementById("fileNameInput").value = item.name;
-            document.getElementById("expressionInput").value = item.expression;
-            editIndex = index; // Устанавливаем индекс редактируемого элемента
-        }
-
-        //Кнопка удаления файла
-        // function deleteExpression(index) {
-        //     savedExpressions.splice(index, 1);
-        //     updateSavedExpressions();
-        // }
 
         function toggleVisibility(sectionId) {
             const section = document.getElementById(sectionId);
