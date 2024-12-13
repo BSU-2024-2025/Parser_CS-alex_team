@@ -1,8 +1,7 @@
 import re
 
 KEYWORDS = {'if', 'else', 'while', 'print', 'function', 'return', 'true', 'false'}
-OPERATORS = {'+', '-', '*', '/', '>=', '<=', '==', '!=', '=', '>', '<', '&&', '||', '!', '**', '//'}
-
+OPERATORS = {'+', '-', '*', '/', '>=', '<=', '==', '!=', '=', '>', '<', '&&', '||', '!', '**'}
 PUNCTUATION = {'(', ')', '{', '}', ';', ','}
 
 class Lexer:
@@ -21,8 +20,7 @@ class Lexer:
         if self.position >= len(self.code):
             return None
 
-        # Изменение для обработки комментариев
-        if self.code[self.position] == '#':
+        if self.code[self.position:self.position+2] == "//":
             self.position = self.code.find("\n", self.position)
             return self.get_next_token()
 
@@ -72,3 +70,4 @@ class Lexer:
                 break
             self.tokens.append(token)
         return self.tokens
+  

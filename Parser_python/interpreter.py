@@ -21,7 +21,7 @@ class Interpreter:
         for statement in node['body']:
             result = self.evaluate(statement)
             if isinstance(result, dict) and result.get('type') == 'ReturnStatement':
-                return result['value']
+                return result
 
     def evaluate_AssignmentStatement(self, node):
         identifier = node['left'][1]
@@ -36,7 +36,7 @@ class Interpreter:
         while self.evaluate(node['condition']):
             result = self.evaluate_Program({'type': 'Program', 'body': node['body']})
             if isinstance(result, dict) and result.get('type') == 'ReturnStatement':
-                return result['value']
+                return result
 
     def evaluate_IfStatement(self, node):
         if self.evaluate(node['condition']):
@@ -131,9 +131,10 @@ class Interpreter:
         return result
 
     def evaluate_ReturnStatement(self, node):
+        value = self.evaluate(node['value'])
         return {
             'type': 'ReturnStatement',
-            'value': self.evaluate(node['value'])
+            'value': value
         }
 
     def evaluate_IDENTIFIER(self, node):
